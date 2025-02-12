@@ -24,3 +24,10 @@ svg {
     stroke: #aaa;
     stroke-width: 2px;
 }
+.hidden-node {
+    display: none; /* Hide extra nodes */
+}
+
+.hidden-link {
+    display: none; /* Hide extra links */
+}
