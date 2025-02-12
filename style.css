@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+svg {
+    border: 1px solid #ddd;
+    display: block;
+    margin: auto;
+}
+
+.node circle {
+    stroke: #000;
+    stroke-width: 2px;
+    cursor: pointer;
+}
+
+.node text {
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.link {
+    stroke: #aaa;
+    stroke-width: 2px;
+}
