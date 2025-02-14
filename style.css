@@ -1,12 +1,16 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    overflow: hidden; 
 }
 
 svg {
     border: 1px solid #ddd;
     display: block;
     margin: auto;
+    width: 100vw;
+    height: 100vh;
 }
 
 .node circle {
@@ -24,10 +28,24 @@ svg {
     stroke: #aaa;
     stroke-width: 2px;
 }
+
 .hidden-node {
-    display: none; /* Hide extra nodes */
+    opacity: 0;
+    pointer-events: none; 
 }
 
 .hidden-link {
-    display: none; /* Hide extra links */
+    opacity: 0;
+    pointer-events: none; 
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+}
+
+svg {
+    display: block;
+    overflow: visible;
 }
