@@ -230,64 +230,6 @@ const node = container.append("g")
     .data(data.nodes)
     .enter().append("g");
 
-
-
-
-
-    /*const width = window.innerWidth;
-    const height = window.innerHeight;
-    
-    const svg = d3.select("svg")
-        .attr("viewBox", `0 0 ${width} ${height}`)
-        .attr("width", "100%")
-        .attr("height", "100%");
-    
-    // Create a zoomable container
-    const container = svg.append("g")
-        .attr("transform", "translate(0,0)");
-    
-    // Enable zooming & panning
-    const zoom = d3.zoom()
-        .scaleExtent([0.5, 3])  // Min & max zoom levels
-        .on("zoom", (event) => {
-            container.attr("transform", event.transform);
-        });
-    
-    svg.call(zoom);
-    
-    // Append links inside the zoomable container
-    const link = container.append("g")
-        .selectAll("line")
-        .data(data.links)
-        .enter().append("line")
-        .attr("stroke", "#aaa");
-    
-    // Append nodes inside the zoomable container
-    const node = container.append("g")
-        .selectAll("g")
-        .data(data.nodes)
-        .enter().append("g");
-    
-    // Initialize the force simulation
-    const simulation = d3.forceSimulation(data.nodes)
-        .force("link", d3.forceLink(data.links)
-            .id(d => d.id)
-            .distance(d => (d.source.id === "Primary Users" ? 180 : 120))
-        )
-        .force("charge", d3.forceManyBody().strength(-400))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius(50));
-    
-    // Ensure simulation updates the node and link positions
-    simulation.on("tick", () => {
-        link
-            .attr("x1", d => d.source.x)
-            .attr("y1", d => d.source.y)
-            .attr("x2", d => d.target.x)
-            .attr("y2", d => d.target.y);
-    
-        node.attr("transform", d => `translate(${d.x},${d.y})`);
-    });*/
     
    
     //let expandedCategories = new Set(["Material Types", "Subjects", "Educational Level", "Language", "Media Format", "Domain", "Country"]); 
