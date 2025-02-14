@@ -190,10 +190,28 @@ const data = {
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+//const width = 800;  // Fixed size to prevent weird resizing
+//const height = 600;
+
 const svg = d3.select("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("width", "100%")
+    .attr("preserveAspectRatio", "xMidYMid meet") // 
+    .attr("width", "100%") // 
     .attr("height", "100%");
+
+
+function resize() {
+const newWidth = window.innerWidth;
+const newHeight = window.innerHeight;
+svg.attr("viewBox", `0 0 ${newWidth} ${newHeight}`);
+}
+
+window.addEventListener("resize", resize);
+resize
+//const svg = d3.select("svg")
+  //  .attr("viewBox", `0 0 ${width} ${height}`)
+    //.attr("width", "100%")
+    //.attr("height", "100%");
 
 const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links)
