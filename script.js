@@ -6,12 +6,12 @@ const data = {
         { id: "Licensing", group: "category" },
         { id: "Domain", group: "category" },
         { id: "Material Types", group: "category" },
-        { id: "Subjects", group: "category" },
+        { id: "Subject list", group: "category" },
         { id: "Educational Level", group: "category" },
         { id: "Language", group: "category" },
         { id: "Media Format", group: "category" },
         { id: "Domain", group: "category" },
-        { id: "Country", group: "category" },
+        { id: " Country list", group: "category" },
 
         // Material Type Structure
         { id: "Primary Users", group: "material" }, 
@@ -39,7 +39,7 @@ const data = {
 
         // Reading Materials
         { id: "Reading Materials", group: "material" },
-        { id: "Community Radio Transcripts", group: "material" },
+        { id: "Community Radio Transcripts(LMIC specific)", group: "material" },
         { id: "Textbook", group: "material" },
         { id: "Reading", group: "material" },
         { id: "Primary Source", group: "material" },
@@ -77,7 +77,7 @@ const data = {
         //Domain
         { id: "In alignment with GPF", group: "standard" },
 
-        // Country 
+        //  Country list 
         { id: "USA", group: "country" },
         { id: "UK", group: "country" },
         { id: "Global", group: "country" },
@@ -98,12 +98,12 @@ const data = {
         // Connect root node to categories
         { source: "Educational Content", target: "Licensing" },
         { source: "Educational Content", target: "Material Types" },
-        { source: "Educational Content", target: "Subjects" },
+        { source: "Educational Content", target: "Subject list" },
         { source: "Educational Content", target: "Educational Level" },
         { source: "Educational Content", target: "Language" },
         { source: "Educational Content", target: "Media Format" },
         { source: "Educational Content", target: "Domain" },
-        { source: "Educational Content", target: "Country" },
+        { source: "Educational Content", target: " Country list" },
 
         // Connect Material Types to Primary Users
         { source: "Material Types", target: "Primary Users" },
@@ -128,7 +128,7 @@ const data = {
         { source: "Mixed Media", target: "Diagram/Illustration" },
 
         { source: "Students", target: "Reading Materials" },
-        { source: "Reading Materials", target: "Community Radio Transcripts" },
+        { source: "Reading Materials", target: "Community Radio Transcripts(LMIC specific)" },
         { source: "Reading Materials", target: "Textbook" },
         { source: "Reading Materials", target: "Reading" },
         { source: "Reading Materials", target: "Primary Source" },
@@ -145,8 +145,8 @@ const data = {
         { source: "Instructor Materials", target: "Teacher Guide" },
         { source: "Instructor Materials", target: "Lesson Plan" },
 
-        { source: "Subjects", target: "Numeracy" },
-        { source: "Subjects", target: "Literacy" },
+        { source: "Subject list", target: "Numeracy" },
+        { source: "Subject list", target: "Literacy" },
 
         { source: "Educational Level", target: "Preschool" },
         { source: "Educational Level", target: "Lower Primary" },
@@ -168,17 +168,17 @@ const data = {
         //Domain
         { source: "Domain", target: "In alignment with GPF" },
 
-        //Country
+        // Country list
   
-        { source: "Country", target: "USA" },
-        { source: "Country", target: "UK" },
-        { source: "Country", target: "Global" },
-        { source: "Country", target: "Uganda" },
-        { source: "Country", target: "Nigeria" },
-        { source: "Country", target: "Rwanda" },
-        { source: "Country", target: "Sierra Leone" },
-        { source: "Country", target: "Kenya" },
-        { source: "Country", target: "India" },
+        { source: " Country list", target: "USA" },
+        { source: " Country list", target: "UK" },
+        { source: " Country list", target: "Global" },
+        { source: " Country list", target: "Uganda" },
+        { source: " Country list", target: "Nigeria" },
+        { source: " Country list", target: "Rwanda" },
+        { source: " Country list", target: "Sierra Leone" },
+        { source: " Country list", target: "Kenya" },
+        { source: " Country list", target: "India" },
 
         //Licensing
         { source: "Licensing", target: "Common Crawl" },
@@ -195,7 +195,7 @@ const height = window.innerHeight;
 const svg = d3.select("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
 
-    .attr("width", "100%")
+    .attr("width", "200%")
     .attr("height", "100%")
     .style("overflow", "scroll") 
     .style("display", "block") ;
@@ -232,10 +232,10 @@ const node = container.append("g")
 
     
    
-    //let expandedCategories = new Set(["Material Types", "Subjects", "Educational Level", "Language", "Media Format", "Domain", "Country"]); 
+    //let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list"]); 
 
 
-let expandedCategories = new Set(["Material Types", "Subjects", "Educational Level", "Language", "Media Format", "Domain", "Country","Licensing"]); 
+let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing"]); 
 let hiddenNodes = {};
 let hiddenLinks = {};
 
@@ -253,7 +253,7 @@ function getChildNodes(nodeId, visited = new Set()) {
 }
 
 function initializeCollapse() {
-    let categoriesToCollapse = ["Material Types", "Subjects", "Educational Level", "Language", "Media Format", "Domain", "Country","Licensing"];
+    let categoriesToCollapse = ["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing"];
 
     categoriesToCollapse.forEach(category => {
         let categoryNodes = new Set();
@@ -324,7 +324,7 @@ node.append("circle")
         );
     })
     .on("dblclick", (event, d) => {
-        if (["Material Types", "Subjects", "Educational Level", "Language", "Media Format", "Domain", "Country","Licensing"].includes(d.id)) {
+        if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing"].includes(d.id)) {
             let isCollapsed = expandedCategories.has(d.id);
     
             if (isCollapsed) {

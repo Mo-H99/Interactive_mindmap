@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
-    overflow: hidden; 
+    overflow-x: auto; 
 }
 
 svg {
@@ -48,4 +48,6 @@ svg {
 svg {
     display: block;
     overflow: visible;
+    min-width: 150%;
+
 }
