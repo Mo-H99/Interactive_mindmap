@@ -123,7 +123,6 @@ const data = {
 
         { source: "Students", target: "Mixed Media" },
         { source: "Mixed Media", target: "Simulation" },
-        { source: "Mixed Media", target: "Interactive" },
         { source: "Mixed Media", target: "Game" },
         { source: "Mixed Media", target: "Diagram/Illustration" },
 
@@ -209,6 +208,16 @@ const zoom = d3.zoom()
     }); 
 
 svg.call(zoom); 
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "+") {  // 
+        svg.transition().call(zoom.scaleBy, 1.2);
+    } else if (event.key === "-") {  
+        svg.transition().call(zoom.scaleBy, 0.8);
+    } else if (event.key === "r") {  
+        svg.transition().call(zoom.transform, d3.zoomIdentity);
+    }
+});
 
 const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links)
