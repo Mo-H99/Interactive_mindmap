@@ -10,8 +10,10 @@ const data = {
         { id: "Educational Level", group: "category" },
         { id: "Language", group: "category" },
         { id: "Media Format", group: "category" },
-        { id: "Domain", group: "category" },
         { id: " Country list", group: "category" },
+        { id: "Accessibility", group: "category" },
+        { id: "Delivery format", group: "category" },
+        { id: "Educational Standard", group: "category" },
 
         // Material Type Structure
         { id: "Primary Users", group: "material" }, 
@@ -21,6 +23,12 @@ const data = {
         // Courseware
         { id: "Courseware", group: "material" },
         { id: "Lessons", group: "material" },
+
+        //Accessability
+
+        { id: "Audio description", group: "accessibility" },
+        { id: "Caption", group: "accessibility" },
+        { id: "Transcript", group: "accessibility" },
 
         // Activities & Assignments
         { id: "Activities & Assignments", group: "material" },
@@ -33,7 +41,6 @@ const data = {
         // Mixed Media
         { id: "Mixed Media", group: "material" },
         { id: "Simulation", group: "material" },
-        { id: "Interactive", group: "material" },
         { id: "Game", group: "material" },
         { id: "Diagram/Illustration", group: "material" },
 
@@ -54,6 +61,7 @@ const data = {
         // Subject Categories
         { id: "Numeracy", group: "subject" },
         { id: "Literacy", group: "subject" },
+
 
         // Education Level
         { id: "Preschool", group: "level" },
@@ -89,7 +97,17 @@ const data = {
         { id: "India", group: "country" },
 
         //Licensing
-        { id: "Common Crawl", group: "licensing" },
+        { id: "Creative Commons", group: "licensing" },
+
+        //Delivery format
+
+        { id: "Web-based", group: "delivery" },
+        { id: "Software-based", group: "delivery" },
+        { id: "Mobile accessible", group: "delivery" },
+        { id: "Offline accessible", group: "delivery" },
+
+        // Educational Standard
+        { id: "In alignment with national curricula", group: "standard" }
 
         
     ],
@@ -104,6 +122,9 @@ const data = {
         { source: "Educational Content", target: "Media Format" },
         { source: "Educational Content", target: "Domain" },
         { source: "Educational Content", target: " Country list" },
+        { source: "Educational Content", target: "Accessibility" },
+        { source: "Educational Content", target: "Delivery format" },
+        {source: "Educational Content", target: "Educational Standard" },
 
         // Connect Material Types to Primary Users
         { source: "Material Types", target: "Primary Users" },
@@ -146,6 +167,7 @@ const data = {
 
         { source: "Subject list", target: "Numeracy" },
         { source: "Subject list", target: "Literacy" },
+    
 
         { source: "Educational Level", target: "Preschool" },
         { source: "Educational Level", target: "Lower Primary" },
@@ -180,7 +202,23 @@ const data = {
         { source: " Country list", target: "India" },
 
         //Licensing
-        { source: "Licensing", target: "Common Crawl" },
+        { source: "Licensing", target: "Creative Commons" },
+
+        // Accessibility
+
+        { source: "Accessibility", target: "Audio description" },
+        { source: "Accessibility", target: "Caption" },
+        { source: "Accessibility", target: "Transcript" },
+
+        //Delivery format
+        
+        { source: "Delivery format", target: "Web-based" },
+        { source: "Delivery format", target: "Software-based" },
+        { source: "Delivery format", target: "Mobile accessible" },
+        { source: "Delivery format", target: "Offline accessible" },
+
+        // Educational Standard
+        { source: "Educational Standard", target: "In alignment with national curricula" }
 
     ]
 };
@@ -196,7 +234,7 @@ const svg = d3.select("svg")
 
     .attr("width", "200%")
     .attr("height", "100%")
-    .style("overflow", "scroll") 
+    .style("overflow", "auto") 
     .style("display", "block") ;
 
 const container = svg.append("g"); 
@@ -224,7 +262,7 @@ const simulation = d3.forceSimulation(data.nodes)
         .id(d => d.id)
         .distance(d => (d.source.id === "Primary Users" ? 180 : 120))
     )
-    .force("charge", d3.forceManyBody().strength(-400))
+    .force("charge", d3.forceManyBody().strength(-700))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(50));
 
@@ -244,7 +282,7 @@ const node = container.append("g")
     //let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list"]); 
 
 
-let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing"]); 
+let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing","Accessibility","Delivery format","Educational Standard"]); 
 let hiddenNodes = {};
 let hiddenLinks = {};
 
@@ -262,7 +300,7 @@ function getChildNodes(nodeId, visited = new Set()) {
 }
 
 function initializeCollapse() {
-    let categoriesToCollapse = ["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing"];
+    let categoriesToCollapse = ["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing","Accessibility","Delivery format","Educational Standard"];
 
     categoriesToCollapse.forEach(category => {
         let categoryNodes = new Set();
@@ -330,10 +368,11 @@ node.append("circle")
              n.group === "category" ? "#8E24AA" :
              n.group === "user" ? "#42A5F5" :
              n.group === "material" ? "#E0E0E0" : "#BDBDBD")
+    
         );
     })
     .on("dblclick", (event, d) => {
-        if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing"].includes(d.id)) {
+        if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing","Accessibility","Delivery format","Educational Standard"].includes(d.id)) {
             let isCollapsed = expandedCategories.has(d.id);
     
             if (isCollapsed) {
