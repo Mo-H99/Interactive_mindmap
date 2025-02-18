@@ -10,7 +10,7 @@ const data = {
         { id: "Educational Level", group: "category" },
         { id: "Language", group: "category" },
         { id: "Media Format", group: "category" },
-        { id: " Country list", group: "category" },
+        { id: "Country list", group: "category" },
         { id: "Accessibility", group: "category" },
         { id: "Delivery format", group: "category" },
         { id: "Educational Standard", group: "category" },
@@ -19,6 +19,14 @@ const data = {
         { id: "Primary Users", group: "material" }, 
         { id: "Students", group: "user" },
         { id: "Teachers", group: "user" },
+        { id: "Parents", group: "user" },
+        { id: "District School Leaders", group: "user" },
+        { id: "Head of Departments", group: "user" },
+        { id: "Principals", group: "user" },
+        { id: "Community Members", group: "user" },
+        { id: "Education Managers", group: "user" },
+        { id: "Policy Makers", group: "user" },
+
 
         // Courseware
         { id: "Courseware", group: "material" },
@@ -121,7 +129,7 @@ const data = {
         { source: "Educational Content", target: "Language" },
         { source: "Educational Content", target: "Media Format" },
         { source: "Educational Content", target: "Domain" },
-        { source: "Educational Content", target: " Country list" },
+        { source: "Educational Content", target: "Country list" },
         { source: "Educational Content", target: "Accessibility" },
         { source: "Educational Content", target: "Delivery format" },
         {source: "Educational Content", target: "Educational Standard" },
@@ -130,6 +138,14 @@ const data = {
         { source: "Material Types", target: "Primary Users" },
         { source: "Primary Users", target: "Students" },
         { source: "Primary Users", target: "Teachers" },
+        { source: "Primary Users", target: "Parents" },
+        { source: "Primary Users", target: "District School Leaders" },
+        { source: "Primary Users", target: "Head of Departments" },
+        { source: "Primary Users", target: "Principals" },
+        { source: "Primary Users", target: "Community Members" },
+        { source: "Primary Users", target: "Education Managers" },
+        { source: "Primary Users", target: "Policy Makers" },
+
 
         // Connect Students to their material types
         { source: "Students", target: "Courseware" },
@@ -191,15 +207,15 @@ const data = {
 
         // Country list
   
-        { source: " Country list", target: "USA" },
-        { source: " Country list", target: "UK" },
-        { source: " Country list", target: "Global" },
-        { source: " Country list", target: "Uganda" },
-        { source: " Country list", target: "Nigeria" },
-        { source: " Country list", target: "Rwanda" },
-        { source: " Country list", target: "Sierra Leone" },
-        { source: " Country list", target: "Kenya" },
-        { source: " Country list", target: "India" },
+        { source: "Country list", target: "USA" },
+        { source: "Country list", target: "UK" },
+        { source: "Country list", target: "Global" },
+        { source: "Country list", target: "Uganda" },
+        { source: "Country list", target: "Nigeria" },
+        { source: "Country list", target: "Rwanda" },
+        { source: "Country list", target: "Sierra Leone" },
+        { source: "Country list", target: "Kenya" },
+        { source: "Country list", target: "India" },
 
         //Licensing
         { source: "Licensing", target: "Creative Commons" },
@@ -260,11 +276,23 @@ document.addEventListener("keydown", (event) => {
 const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links)
         .id(d => d.id)
-        .distance(d => (d.source.id === "Primary Users" ? 180 : 120))
+        .distance(d => { 
+            if (d.source.id === "Primary Users") return 250; 
+            if (d.source.id === "Delivery format") return 200; 
+            if (d.source.id === "Educational level") return 250; 
+            if (d.source.id === "Accessibility" || d.target.id === "Accessibility") return 120; 
+            if (d.source.id === "Reading Materials" || d.target.id === "Reading Materials") return 300
+            if (d.source.id === "Courseware" || d.target.id === "Courseware") return 250;
+            if (d.source.id === "Students" || d.target.id === "Students") return 250;
+            if (d.source.id === "Teachers" || d.target.id === "Teachers") return 250;
+            
+            return 150; 
+        })
     )
-    .force("charge", d3.forceManyBody().strength(-700))
+    .force("charge", d3.forceManyBody().strength(-900)) 
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(50));
+
 
 const link = container.append("g") 
     .selectAll("line")
@@ -277,12 +305,7 @@ const node = container.append("g")
     .data(data.nodes)
     .enter().append("g");
 
-    
-   
-    //let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list"]); 
-
-
-let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing","Accessibility","Delivery format","Educational Standard"]); 
+let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list","Licensing","Accessibility","Delivery format","Educational Standard"]); 
 let hiddenNodes = {};
 let hiddenLinks = {};
 
@@ -300,7 +323,7 @@ function getChildNodes(nodeId, visited = new Set()) {
 }
 
 function initializeCollapse() {
-    let categoriesToCollapse = ["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing","Accessibility","Delivery format","Educational Standard"];
+    let categoriesToCollapse = ["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list","Licensing","Accessibility","Delivery format","Educational Standard"];
 
     categoriesToCollapse.forEach(category => {
         let categoryNodes = new Set();
@@ -322,57 +345,64 @@ function initializeCollapse() {
     });
 }
 
-node.append("circle")
+    node.append("circle")
     .attr("r", 12)
     .attr("fill", d => {
+        if (d.id === "Educational Standard" || d.id === "Accessibility") return "lightgray"; // 
+        if (["Licensing", "Domain", "Material Types", "Subject list","Country list", "Educational Level", "Language", "Media Format","Delivery format"].includes(d.id)) {return "green"; }
         if (d.id === "Primary Users") return "#FFC107"; 
         if (d.id === "Students") return "#42A5F5";  
         if (d.id === "Teachers") return "#1565C0";  
         if (d.id === "Instructor Materials") return "#9E9E9E";
-        if (d.group === "category") return "#8E24AA"; 
         if (d.group === "material") return "#E0E0E0"; 
-        if (d.group === "root") return "Black";
-        if (d.group === "Licensing") return "#FF5722";
-        return "#BDBDBD";  
+        if (d.group === "root") return "black";
+          
     })
-    .on("click", (event, d) => {
+  
+    node.on("click", (event, d) => {
         let connectedNodes = new Set();
 
-        function getChildNodes(nodeId, visited = new Set()) {
-            if (visited.has(nodeId)) return;
-            visited.add(nodeId);
-
+        function getFirstLevelChildren(nodeId) {
             data.links.forEach(link => {
-                if (link.source.id === nodeId && !visited.has(link.target.id)) {
-                    getChildNodes(link.target.id, visited);
+                if (link.source.id === nodeId) {
+                    connectedNodes.add(link.target.id);
                 }
             });
         }
 
+        // If clicking on "Students" or "Teachers", only highlight first-level child nodes
         if (d.id === "Students" || d.id === "Teachers") {
-            
-            getChildNodes(d.id, connectedNodes);
+            getFirstLevelChildren(d.id);
         } else {
-            // Highlight directly connected nodes
+            // Highlight directly connected nodes for any other node
             data.links.forEach(link => {
                 if (link.source.id === d.id) connectedNodes.add(link.target.id);
                 if (link.target.id === d.id) connectedNodes.add(link.source.id);
             });
         }
 
-        // Colour changes: Single-click turns nodes red
-
+        // Apply color changes: Single-click turns nodes green for first-level children
         node.selectAll("circle").attr("fill", n => 
-            connectedNodes.has(n.id) ? "red" : 
-            (n.group === "root" ? "purple" :
-             n.group === "category" ? "#8E24AA" :
-             n.group === "user" ? "#42A5F5" :
-             n.group === "material" ? "#E0E0E0" : "#BDBDBD")
+            connectedNodes.has(n.id) ? "green" : 
+            (n.id === "Educational Standard" || n.id === "Accessibility" ? "lightgray" : 
+            ["Licensing", "Domain", "Material Types", "Subject list","Educational Level", "Language", "Media Format","Country list", "Delivery format"].includes(n.id) ? "green" : 
+            (["Parents", "District School Leaders", "Head of Departments", "Principals","Community Members", "Education Managers", "Policy Makers"].includes(n.id) ? "lightgray" :    
+            (n.id === "Primary Users" ? "lightgray" : 
+            (n.id === "Students" ? "#42A5F5" : 
+            (n.id === "Teachers" ? "#42A5F5" : 
+            (n.id === "Instructor Materials" ? "#9E9E9E" : 
+            (n.group === "material" ? "#E0E0E0" : 
+            (n.group === "root" ? "black" : 
+            (n.group === "Licensing" ? "#FF5722" : "#BDBDBD")))))))))
+
+            );
+
+        });
     
-        );
-    })
-    .on("dblclick", (event, d) => {
-        if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", " Country list","Licensing","Accessibility","Delivery format","Educational Standard"].includes(d.id)) {
+    
+
+    node.on("dblclick", (event, d) => {
+        if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list","Licensing","Accessibility","Delivery format","Educational Standard"].includes(d.id)) {
             let isCollapsed = expandedCategories.has(d.id);
     
             if (isCollapsed) {
