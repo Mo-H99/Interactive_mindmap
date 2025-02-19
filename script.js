@@ -255,23 +255,32 @@ const svg = d3.select("svg")
 
 const container = svg.append("g"); 
 
+
 const zoom = d3.zoom() 
-    .scaleExtent([0.5, 3]) 
+    .scaleExtent([0.5, 3])  
     .on("zoom", (event) => { 
         container.attr("transform", event.transform); 
     }); 
 
-svg.call(zoom); 
+svg.call(zoom);
 
+
+const initialScale = 0.49;  
+const initialTranslate = [width / 2.5, height / 1.5];  
+
+svg.call(zoom.transform, d3.zoomIdentity.translate(initialTranslate[0], initialTranslate[1]).scale(initialScale));
+
+// Keyboard shortcuts for zoom 
 document.addEventListener("keydown", (event) => {
-    if (event.key === "+") {  // 
+    if (event.key === "+") {  
         svg.transition().call(zoom.scaleBy, 1.2);
     } else if (event.key === "-") {  
         svg.transition().call(zoom.scaleBy, 0.8);
     } else if (event.key === "r") {  
-        svg.transition().call(zoom.transform, d3.zoomIdentity);
+        svg.transition().call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1.2));
     }
 });
+
 
 const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links)
@@ -285,7 +294,7 @@ const simulation = d3.forceSimulation(data.nodes)
             if (d.source.id === "Courseware" || d.target.id === "Courseware") return 250;
             if (d.source.id === "Students" || d.target.id === "Students") return 250;
             if (d.source.id === "Teachers" || d.target.id === "Teachers") return 250;
-            
+
             return 150; 
         })
     )
@@ -355,7 +364,7 @@ function initializeCollapse() {
         if (d.id === "Teachers") return "#1565C0";  
         if (d.id === "Instructor Materials") return "#9E9E9E";
         if (d.group === "material") return "#E0E0E0"; 
-        if (d.group === "root") return "black";
+        if (d.group === "root") return "Red";
           
     })
   
@@ -374,7 +383,6 @@ function initializeCollapse() {
         if (d.id === "Students" || d.id === "Teachers") {
             getFirstLevelChildren(d.id);
         } else {
-            // Highlight directly connected nodes for any other node
             data.links.forEach(link => {
                 if (link.source.id === d.id) connectedNodes.add(link.target.id);
                 if (link.target.id === d.id) connectedNodes.add(link.source.id);
