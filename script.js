@@ -303,7 +303,7 @@ const container = svg.append("g");
 
 
 const zoom = d3.zoom() 
-    .scaleExtent([0.5, 3])  
+    .scaleExtent([0.5, 2])  
     .on("zoom", (event) => { 
         container.attr("transform", event.transform); 
     }); 
@@ -312,11 +312,11 @@ svg.call(zoom);
 
 
 const initialScale = 0.49;  
-const initialTranslate = [width / 2.5, height / 1.5];  
+const initialTranslate = [width / 2.2, height / 7.5];  
 
 svg.call(zoom.transform, d3.zoomIdentity.translate(initialTranslate[0], initialTranslate[1]).scale(initialScale));
 
-// Keyboard shortcuts for zoom 
+// Keyboard shortcuts for zoom
 document.addEventListener("keydown", (event) => {
     if (event.key === "+") {  
         svg.transition().call(zoom.scaleBy, 1.2);
