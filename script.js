@@ -14,6 +14,7 @@ const data = {
         { id: "Accessibility", group: "category" },
         { id: "Delivery format", group: "category" },
         { id: "Educational Standard", group: "category" },
+        { id: "Class Guides", group: "category" },
 
         // Material Type Structure
         { id: "Primary Users", group: "material" }, 
@@ -27,10 +28,17 @@ const data = {
         { id: "Education Managers", group: "user" },
         { id: "Policy Makers", group: "user" },
 
+        //Class Guides
+        {id: "Student Guide", group: "material"},
+        {id: "Syllabus", group: "material"},
 
         // Courseware
         { id: "Courseware", group: "material" },
-        { id: "Lessons", group: "material" },
+        {id: "Lesson", group: "material"},
+        {id: "Full Course", group: "material"},
+        {id: "Lecture", group: "material"},
+        {id: "Module", group: "material"},
+        {id: "Unit of Study", group: "material"},
 
         //Accessability
 
@@ -54,10 +62,13 @@ const data = {
 
         // Reading Materials
         { id: "Reading Materials", group: "material" },
-        { id: "Community Radio Transcripts(LMIC specific)", group: "material" },
+        { id: "Community Radio Transcripts", group: "material" },
         { id: "Textbook", group: "material" },
         { id: "Reading", group: "material" },
         { id: "Primary Source", group: "material" },
+        { id: "Case Study", group: "material" },
+        { id: "Data Set", group: "material" },
+        { id: "Lecture Notes", group: "material" },
 
         // Instructor Materials (Only for Teachers)
         { id: "Instructor Materials", group: "material" },
@@ -65,6 +76,8 @@ const data = {
         { id: "Curriculum Plan", group: "material" },
         { id: "Teacher Guide", group: "material" },
         { id: "Lesson Plan", group: "material" },
+        { id: "Teaching/Learning Strategy", group: "material" },
+        { id: "Teaching Tools", group: "material" },
 
         // Subject Categories
         { id: "Numeracy", group: "subject" },
@@ -153,14 +166,23 @@ const data = {
 
         // Connect Students to their material types
         { source: "Students", target: "Courseware" },
-        { source: "Courseware", target: "Lessons" },
+        { source: "Courseware", target: "Lesson" },
+        { source: "Courseware", target: "Full Course" },
+        { source: "Courseware", target: "Lecture" },
+        { source: "Courseware", target: "Module" },
+        { source: "Courseware", target: "Unit of Study" },
+
+        {source: "Students", target: "Class Guides"},
+        {source: "Class Guides", target: "Student Guide"},
+        {source: "Class Guides", target: "Syllabus"},
+        
 
         { source: "Students", target: "Activities & Assignments" },
         { source: "Activities & Assignments", target: "Activity/Lab" },
         { source: "Activities & Assignments", target: "Assessments" },
         { source: "Activities & Assignments", target: "Worksheets" },
         { source: "Activities & Assignments", target: "Homework/Assignment" },
-        { source: "Activities & Assignments", target: "Student Guide" },
+    
 
         { source: "Students", target: "Mixed Media" },
         { source: "Mixed Media", target: "Simulation" },
@@ -168,10 +190,13 @@ const data = {
         { source: "Mixed Media", target: "Diagram/Illustration" },
 
         { source: "Students", target: "Reading Materials" },
-        { source: "Reading Materials", target: "Community Radio Transcripts(LMIC specific)" },
+        { source: "Reading Materials", target: "Community Radio Transcripts" },
         { source: "Reading Materials", target: "Textbook" },
         { source: "Reading Materials", target: "Reading" },
         { source: "Reading Materials", target: "Primary Source" },
+        { source: "Reading Materials", target: "Case Study"},
+        { source: "Reading Materials", target: "Data Set" },
+        { source: "Reading Materials", target: "Lecture Notes" },
 
         // Teachers inherit everything from Students + Instructor Materials
         { source: "Teachers", target: "Courseware" },
@@ -184,6 +209,17 @@ const data = {
         { source: "Instructor Materials", target: "Curriculum Plan" },
         { source: "Instructor Materials", target: "Teacher Guide" },
         { source: "Instructor Materials", target: "Lesson Plan" },
+        { source: "Instructor Materials", target: "Teaching/Learning Strategy" },
+        { source: "Instructor Materials", target: "Teaching Tools" },
+
+        { source: "Teachers", target: "Reading Materials" },
+        { source: "Reading Materials", target: "Primary Source" },
+        { source: "Reading Materials", target: "Case Study"},
+        { source: "Reading Materials", target: "Data Set" },
+        { source: "Reading Materials", target: "Lecture Notes" },
+        { source: "Reading Materials", target: "Community Radio Transcripts" },
+        { source: "Reading Materials", target: "Textbook" },
+        { source: "Reading Materials", target: "Reading" },
 
         { source: "Subject list", target: "Numeracy" },
         { source: "Subject list", target: "Literacy" },
@@ -297,14 +333,17 @@ const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links)
         .id(d => d.id)
         .distance(d => { 
-            if (d.source.id === "Primary Users") return 250; 
+            if (d.source.id === "Primary Users") return 350; 
             if (d.source.id === "Delivery format") return 200; 
             if (d.source.id === "Educational level") return 250; 
             if (d.source.id === "Accessibility" || d.target.id === "Accessibility") return 120; 
             if (d.source.id === "Reading Materials" || d.target.id === "Reading Materials") return 300
+            if (d.source.id === "Instructor Materials" || d.target.id === "Reading Materials") return 300
+            if (d.source.id === "Class Guides" || d.target.id === "Reading Materials") return 350;
             if (d.source.id === "Courseware" || d.target.id === "Courseware") return 250;
             if (d.source.id === "Students" || d.target.id === "Students") return 250;
             if (d.source.id === "Teachers" || d.target.id === "Teachers") return 250;
+            if (d.source.id === "Mixed Media" || d.target.id === "Educational Standard") return 100;
 
             return 150; 
         })
@@ -381,7 +420,7 @@ function initializeCollapse() {
   
     node.on("click", (event, d) => {
         let connectedNodes = new Set();
-
+    
         function getFirstLevelChildren(nodeId) {
             data.links.forEach(link => {
                 if (link.source.id === nodeId) {
@@ -389,23 +428,104 @@ function initializeCollapse() {
                 }
             });
         }
-
-        // If clicking on "Students" or "Teachers", only highlight first-level child nodes
-        if (d.id === "Students" || d.id === "Teachers") {
-            getFirstLevelChildren(d.id);
-        } else {
-            data.links.forEach(link => {
-                if (link.source.id === d.id) connectedNodes.add(link.target.id);
-                if (link.target.id === d.id) connectedNodes.add(link.source.id);
-            });
+    
+        node.selectAll("circle").attr("fill", "#E0E0E0"); 
+    
+        
+        if (d.id === "Reading Materials") {
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                (["Primary Source", "Reading", "Textbook", "Community Radio Transcripts"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return; 
         }
 
-        // Apply color changes: Single-click turns nodes green for first-level children
-        node.selectAll("circle").attr("fill", n => 
-            connectedNodes.has(n.id) ? "green" : 
+        if (d.id === "Instructor Materials") {
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                (["Unit Plan","Curriculum Plan","Teacher Guide","Lesson Plan"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return; 
+        }
+
+        if (d.id === "Courseware") {
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                (["Lesson"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return; 
+        }
+
+        if (d.id === "Class Guides") {
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                (["Student Guide"].includes(n.id)) ? "green" :
+                "#E0E0E0"
+            );
+            return; 
+
+        } 
+    
+        
+        if (d.id === "Teachers") {
+            getFirstLevelChildren(d.id);
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                connectedNodes.has(n.id) ? "#42A5F5" : 
+                (["Reading Materials"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return;
+        }
+    
+        
+        if (d.id === "Students") {
+            getFirstLevelChildren(d.id);
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                connectedNodes.has(n.id) ? "#42A5F5" : 
+                (["Reading Materials"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return;
+        }
+    
+        
+        if (d.id === "Reading Materials" && connectedNodes.has("Teachers")) {
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                (["Case Study", "Data Set", "Lecture Notes"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return;
+        }
+    
+        
+        if (d.id === "Reading Materials" && connectedNodes.has("Students")) {
+            node.selectAll("circle").attr("fill", n =>
+                (n.id === d.id) ? "red" :
+                (["Primary Source", "Reading", "Textbook", "Community Radio Transcripts"].includes(n.id)) ? "green" : 
+                "#E0E0E0"
+            );
+            return;
+        }
+    
+        
+        data.links.forEach(link => {
+            if (link.source.id === d.id) connectedNodes.add(link.target.id);
+            if (link.target.id === d.id) connectedNodes.add(link.source.id);
+        });
+    
+        
+        node.selectAll("circle").attr("fill", n =>
+            (n.id === d.id) ? "red" :
+            connectedNodes.has(n.id) ? "green" :
             (n.id === "Educational Standard" || n.id === "Accessibility" ? "lightgray" : 
-            ["Licensing", "Domain", "Material Types", "Subject list","Educational Level", "Language", "Media Format","Country list", "Delivery format"].includes(n.id) ? "green" : 
-            (["Parents", "District School Leaders", "Head of Departments", "Principals","Community Members", "Education Managers", "Policy Makers"].includes(n.id) ? "lightgray" :    
+            ["Licensing", "Domain", "Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Country list", "Delivery format"].includes(n.id) ? "green" : 
+            (["Parents", "District School Leaders", "Head of Departments", "Principals", "Community Members", "Education Managers", "Policy Makers"].includes(n.id) ? "lightgray" :    
             (n.id === "Primary Users" ? "lightgray" : 
             (n.id === "Students" ? "#42A5F5" : 
             (n.id === "Teachers" ? "#42A5F5" : 
@@ -413,11 +533,9 @@ function initializeCollapse() {
             (n.group === "material" ? "#E0E0E0" : 
             (n.group === "root" ? "black" : 
             (n.group === "Licensing" ? "#FF5722" : "#BDBDBD")))))))))
-
-            );
-            
-
-        });
+        );
+    });
+    
     
     
 
@@ -467,7 +585,7 @@ function initializeCollapse() {
             // 
             if (d.id === "Educational Level") {
                 node.selectAll("circle").attr("fill", n =>
-                    (n.id === "Lower Primary") ? "green" : // Only highlight Lower Primary
+                    (n.id === "Lower Primary") ? "green" : 
                     (["Grade 1", "Grade 2", "Grade 3"].includes(n.id)) ? "green" :
                     (n.id === "Educational Level") ? "green" :  
                     "#E0E0E0"
