@@ -76,6 +76,10 @@ const data = {
         { id: "Lower Primary", group: "level" },
         { id: "Upper Primary", group: "level" },
 
+        { id: "Grade 1", group: "level" },
+        { id: "Grade 2", group: "level" },
+        { id: "Grade 3", group: "level" },
+
         // Language
         { id: "English", group: "language" },
 
@@ -189,6 +193,12 @@ const data = {
         { source: "Educational Level", target: "Lower Primary" },
         { source: "Educational Level", target: "Upper Primary" },
 
+        { source: "Lower Primary", target: "Grade 1" },
+        { source: "Lower Primary", target: "Grade 2" },
+        { source: "Lower Primary", target: "Grade 3" },
+
+
+
         { source: "Language", target: "English" },
 
         //Media Format
@@ -279,7 +289,8 @@ document.addEventListener("keydown", (event) => {
     } else if (event.key === "r") {  
         svg.transition().call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1.2));
     }
-});
+    }
+);
 
 
 const simulation = d3.forceSimulation(data.nodes)
@@ -404,54 +415,66 @@ function initializeCollapse() {
             (n.group === "Licensing" ? "#FF5722" : "#BDBDBD")))))))))
 
             );
+            
 
         });
     
     
 
-    node.on("dblclick", (event, d) => {
-        if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list","Licensing","Accessibility","Delivery format","Educational Standard"].includes(d.id)) {
-            let isCollapsed = expandedCategories.has(d.id);
-    
-            if (isCollapsed) {
-                expandedCategories.delete(d.id);
-    
-                node.filter(n => hiddenNodes[d.id]?.has(n.id))
-                    .transition().duration(500)
-                    .style("opacity", 1)  
-    
-                link.filter(l => hiddenLinks[d.id]?.has(l.target.id) || hiddenLinks[d.id]?.has(l.source.id))
-                    .transition().duration(500)
-                    .style("opacity", 1);  
-    
-            } else {
-                expandedCategories.add(d.id);
-    
-                let categoryNodes = new Set();
-                getChildNodes(d.id, categoryNodes);
-                categoryNodes.delete(d.id); 
-    
-                hiddenNodes[d.id] = new Set(categoryNodes);
-                hiddenLinks[d.id] = new Set();
-    
-                // Store links for hidden nodes
-                data.links.forEach(l => {
-                    if (categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id)) {
-                        hiddenLinks[d.id].add(l.target.id);
-                        hiddenLinks[d.id].add(l.source.id);
-                    }
-                });
-    
-                node.filter(n => categoryNodes.has(n.id))
-                    .transition().duration(500)
-                    .style("opacity", 0);  
-    
-                link.filter(l => categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id))
-                    .transition().duration(500)
-                    .style("opacity", 0);  
+        node.on("dblclick", (event, d) => {
+            if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list", "Licensing", "Accessibility", "Delivery format", "Educational Standard"].includes(d.id)) {
+                let isCollapsed = expandedCategories.has(d.id);
+        
+                if (isCollapsed) {
+                    expandedCategories.delete(d.id);
+        
+                    node.filter(n => hiddenNodes[d.id]?.has(n.id))
+                        .transition().duration(500)
+                        .style("opacity", 1);
+        
+                    link.filter(l => hiddenLinks[d.id]?.has(l.target.id) || hiddenLinks[d.id]?.has(l.source.id))
+                        .transition().duration(500)
+                        .style("opacity", 1);
+        
+                } else {
+                    expandedCategories.add(d.id);
+        
+                    let categoryNodes = new Set();
+                    getChildNodes(d.id, categoryNodes);
+                    categoryNodes.delete(d.id);
+        
+                    hiddenNodes[d.id] = new Set(categoryNodes);
+                    hiddenLinks[d.id] = new Set();
+        
+                    // Store links for hidden nodes
+                    data.links.forEach(l => {
+                        if (categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id)) {
+                            hiddenLinks[d.id].add(l.target.id);
+                            hiddenLinks[d.id].add(l.source.id);
+                        }
+                    });
+        
+                    node.filter(n => categoryNodes.has(n.id))
+                        .transition().duration(500)
+                        .style("opacity", 0);
+        
+                    link.filter(l => categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id))
+                        .transition().duration(500)
+                        .style("opacity", 0);
+                }
+            }  
+        
+            // 
+            if (d.id === "Educational Level") {
+                node.selectAll("circle").attr("fill", n =>
+                    (n.id === "Lower Primary") ? "green" : // Only highlight Lower Primary
+                    (["Grade 1", "Grade 2", "Grade 3"].includes(n.id)) ? "green" :
+                    (n.id === "Educational Level") ? "green" :  
+                    "#E0E0E0"
+                );
             }
-        }
-    });
+        });
+        
     
 
     
