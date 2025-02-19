@@ -14,7 +14,8 @@ const data = {
         { id: "Accessibility", group: "category" },
         { id: "Delivery format", group: "category" },
         { id: "Educational Standard", group: "category" },
-        { id: "Class Guides", group: "category" },
+        { id: "Environment", group: "category" },
+        { id: "Inclusion", group: "category" },
 
         // Material Type Structure
         { id: "Primary Users", group: "material" }, 
@@ -52,6 +53,10 @@ const data = {
         { id: "Assessments", group: "material" },
         { id: "Worksheets", group: "material" },
         { id: "Homework/Assignment", group: "material" },
+
+        // Class Guides
+        { id: "Class Guides", group: "material" },
+        { id: "Syllabus", group: "material" },
         { id: "Student Guide", group: "material" },
 
         // Mixed Media
@@ -132,7 +137,19 @@ const data = {
         { id: "Offline accessible", group: "delivery" },
 
         // Educational Standard
-        { id: "In alignment with national curricula", group: "standard" }
+        { id: "In alignment with national curricula", group: "standard" },
+
+        //Environment
+        { id: "Distance Learning", group: "environment" },
+        { id: "At Home Learning", group: "environment" },
+        { id: "Informal Learning", group: "environment" },
+        { id: "In School Learning", group: "environment" },
+
+        //Inclusion
+        { id: "Neurodivergent", group: "inclusion" },
+        { id: "Physical", group: "inclusion" },
+        { id: "Gender-based", group: "inclusion" },
+        { id: "ELL", group: "inclusion" },
 
         
     ],
@@ -150,6 +167,8 @@ const data = {
         { source: "Educational Content", target: "Accessibility" },
         { source: "Educational Content", target: "Delivery format" },
         {source: "Educational Content", target: "Educational Standard" },
+        {source: "Educational Content", target: "Environment" },
+        {source: "Educational Content", target: "Inclusion" },
 
         // Connect Material Types to Primary Users
         { source: "Material Types", target: "Primary Users" },
@@ -280,7 +299,20 @@ const data = {
         { source: "Delivery format", target: "Offline accessible" },
 
         // Educational Standard
-        { source: "Educational Standard", target: "In alignment with national curricula" }
+        { source: "Educational Standard", target: "In alignment with national curricula" },
+
+        //Environment
+        { source: "Environment", target: "Distance Learning" },
+        { source: "Environment", target: "At Home Learning" },
+        { source: "Environment", target: "Informal Learning" },
+        { source: "Environment", target: "In School Learning" },
+
+        //Inclusion
+        { source: "Inclusion", target: "Neurodivergent" },
+        { source: "Inclusion", target: "Physical" },
+        { source: "Inclusion", target: "Gender-based" },
+        { source: "Inclusion", target: "ELL" },
+
 
     ]
 };
@@ -288,107 +320,146 @@ const data = {
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-//const width = 800;  // Fixed size to prevent weird resizing
-//const height = 600;
-
 const svg = d3.select("svg")
     .attr("viewBox", `0 0 ${width} ${height}`)
-
     .attr("width", "200%")
     .attr("height", "100%")
     .style("overflow", "auto") 
-    .style("display", "block") ;
+    .style("display", "block");
 
-const container = svg.append("g"); 
+const container = svg.append("g");
 
-
-const zoom = d3.zoom() 
-    .scaleExtent([0.5, 2])  
-    .on("zoom", (event) => { 
-        container.attr("transform", event.transform); 
-    }); 
+const zoom = d3.zoom()
+    .scaleExtent([0.1, 2])
+    .on("zoom", (event) => container.attr("transform", event.transform));
 
 svg.call(zoom);
 
+const initialScale = 0.49;
+const initialTranslate = [width / 2, height / 7.5];
 
-const initialScale = 0.49;  
-const initialTranslate = [width / 2.2, height / 7.5];  
+setTimeout(() => {
+    svg.call(zoom.transform, d3.zoomIdentity.translate(...initialTranslate).scale(initialScale));
+}, 50);
 
-svg.call(zoom.transform, d3.zoomIdentity.translate(initialTranslate[0], initialTranslate[1]).scale(initialScale));
-
-// Keyboard shortcuts for zoom
 document.addEventListener("keydown", (event) => {
-    if (event.key === "+") {  
-        svg.transition().call(zoom.scaleBy, 1.2);
-    } else if (event.key === "-") {  
-        svg.transition().call(zoom.scaleBy, 0.8);
-    } else if (event.key === "r") {  
+    if (event.key === "+") svg.transition().call(zoom.scaleBy, 1.2);
+    else if (event.key === "-") svg.transition().call(zoom.scaleBy, 0.8);
+    else if (event.key === "r") 
         svg.transition().call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1.2));
-    }
-    }
-);
-
+});
 
 const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links)
         .id(d => d.id)
-        .distance(d => { 
-            if (d.source.id === "Primary Users") return 350; 
-            if (d.source.id === "Delivery format") return 200; 
-            if (d.source.id === "Educational level") return 250; 
-            if (d.source.id === "Accessibility" || d.target.id === "Accessibility") return 120; 
-            if (d.source.id === "Reading Materials" || d.target.id === "Reading Materials") return 300
-            if (d.source.id === "Instructor Materials" || d.target.id === "Reading Materials") return 300
-            if (d.source.id === "Class Guides" || d.target.id === "Reading Materials") return 350;
-            if (d.source.id === "Courseware" || d.target.id === "Courseware") return 250;
-            if (d.source.id === "Students" || d.target.id === "Students") return 250;
-            if (d.source.id === "Teachers" || d.target.id === "Teachers") return 250;
-            if (d.source.id === "Mixed Media" || d.target.id === "Educational Standard") return 100;
-
-            return 150; 
-        })
+        .distance(d => ({
+            "Primary Users": 450, "Delivery format": 200, "Educational level": 250,
+            "Accessibility": 120, "Reading Materials": 300, "Instructor Materials": 300,
+             "Courseware": 250, "Students": 250, "Teachers": 250,
+            "Mixed Media": 100, "Educational Standard": 100
+        }[d.source.id] || 150))
     )
-    .force("charge", d3.forceManyBody().strength(-900)) 
+    .force("charge", d3.forceManyBody().strength(-900))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(50));
 
-
-const link = container.append("g") 
+const link = container.append("g")
     .selectAll("line")
     .data(data.links)
     .enter().append("line")
     .attr("stroke", "#aaa");
 
-const node = container.append("g") 
+const node = container.append("g")
     .selectAll("g")
     .data(data.nodes)
     .enter().append("g");
 
-let expandedCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list","Licensing","Accessibility","Delivery format","Educational Standard"]); 
-let hiddenNodes = {};
-let hiddenLinks = {};
+node.append("circle")
+    .attr("r", 12)
+    .attr("fill", d => ({
+        "Educational Content": "red","Educational Standard": "lightgray", "Accessibility": "lightgray", "Environment": "lightgray", "Inclusion": "lightgray",
+        "Licensing": "green", "Domain": "green", "Material Types": "green", "Subject list": "green", "Country list": "green",
+        "Educational Level": "green", "Language": "green", "Media Format": "green", "Delivery format": "green",
+        "Primary Users": "#FFC107", "Students": "#42A5F5", "Teachers": "#1565C0", "Instructor Materials": "#9E9E9E"
+    }[d.id] || "#E0E0E0"));
+
+const connectedNodes = new Set();
+
+function getFirstLevelChildren(nodeId) {
+    data.links.forEach(link => {
+        if (link.source.id === nodeId) connectedNodes.add(link.target.id);
+    });
+}
+
+node.on("click", (event, d) => {
+    connectedNodes.clear();
+    getFirstLevelChildren(d.id);
+
+    const focusGroups = {
+        "Reading Materials": ["Primary Source", "Reading", "Textbook", "Community Radio Transcripts"],
+        "Instructor Materials": ["Unit Plan", "Curriculum Plan", "Teacher Guide", "Lesson Plan"],
+        "Courseware": ["Lesson"],
+        "Class Guides": ["Student Guide"],
+        "Reading Materials (Teachers)": ["Case Study", "Data Set", "Lecture Notes"],
+        "Reading Materials (Students)": ["Primary Source", "Reading", "Textbook", "Community Radio Transcripts"]
+    };
+
+    const highlightNodes = (nodeList, mainColor, relatedColor) => {
+        node.selectAll("circle").attr("fill", n =>
+            nodeList.has(n.id) ? relatedColor :
+            (n.id === d.id) ? mainColor : "#E0E0E0"
+        );
+    };
+
+    if (focusGroups[d.id]) {
+        highlightNodes(new Set(focusGroups[d.id]), "red", "green");
+        return;
+    }
+
+    if (["Teachers", "Students"].includes(d.id)) {
+        highlightNodes(connectedNodes, "red", "#42A5F5");
+        return;
+    }
+
+    if (d.id === "Reading Materials") {
+        if (connectedNodes.has("Teachers")) {
+            highlightNodes(new Set(focusGroups["Reading Materials (Teachers)"]), "red", "green");
+        } else if (connectedNodes.has("Students")) {
+            highlightNodes(new Set(focusGroups["Reading Materials (Students)"]), "red", "green");
+        }
+        return;
+    }
+
+    node.selectAll("circle").attr("fill", n =>
+        (n.id === d.id) ? "red" :
+        (connectedNodes.has(n.id)) ? "green" :
+        ({"Educatioal Content":"Red","Educational Standard": "lightgray", "Accessibility": "lightgray", "Environment": "lightgray", "Inclusion": "lightgray",
+            "Licensing": "green", "Domain": "green", "Material Types": "green", "Subject list": "green", "Country list": "green",
+            "Educational Level": "green", "Language": "green", "Media Format": "green", "Delivery format": "green",
+            "Primary Users": "lightgray", "Students": "#42A5F5", "Teachers": "#42A5F5", "Instructor Materials": "#9E9E9E"
+        }[n.id] || "#E0E0E0")
+    );
+});
+
+const expandableCategories = new Set(["Material Types", "Subject list", "Educational Level", "Language", "Media Format",
+    "Domain", "Country list", "Licensing", "Accessibility", "Delivery format", "Educational Standard", "Environment", "Inclusion"]);
+
+const hiddenNodes = {}, hiddenLinks = {};
 
 function getChildNodes(nodeId, visited = new Set()) {
-    if (visited.has(nodeId)) return;
-    visited.add(nodeId);
-
-    data.links.forEach(link => {
-        if (link.source.id === nodeId && !visited.has(link.target.id)) {
-            getChildNodes(link.target.id, visited);
-        }
-    });
-
+    if (!visited.has(nodeId)) {
+        visited.add(nodeId);
+        data.links.forEach(link => {
+            if (link.source.id === nodeId) getChildNodes(link.target.id, visited);
+        });
+    }
     return visited;
 }
 
 function initializeCollapse() {
-    let categoriesToCollapse = ["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list","Licensing","Accessibility","Delivery format","Educational Standard"];
-
-    categoriesToCollapse.forEach(category => {
-        let categoryNodes = new Set();
-        getChildNodes(category, categoryNodes);
-        categoryNodes.delete(category); 
-
+    expandableCategories.forEach(category => {
+        let categoryNodes = getChildNodes(category);
+        categoryNodes.delete(category);
         hiddenNodes[category] = new Set(categoryNodes);
         hiddenLinks[category] = new Set();
 
@@ -404,213 +475,39 @@ function initializeCollapse() {
     });
 }
 
-    node.append("circle")
-    .attr("r", 12)
-    .attr("fill", d => {
-        if (d.id === "Educational Standard" || d.id === "Accessibility") return "lightgray"; // 
-        if (["Licensing", "Domain", "Material Types", "Subject list","Country list", "Educational Level", "Language", "Media Format","Delivery format"].includes(d.id)) {return "green"; }
-        if (d.id === "Primary Users") return "#FFC107"; 
-        if (d.id === "Students") return "#42A5F5";  
-        if (d.id === "Teachers") return "#1565C0";  
-        if (d.id === "Instructor Materials") return "#9E9E9E";
-        if (d.group === "material") return "#E0E0E0"; 
-        if (d.group === "root") return "Red";
-          
-    })
-  
-    node.on("click", (event, d) => {
-        let connectedNodes = new Set();
-    
-        function getFirstLevelChildren(nodeId) {
-            data.links.forEach(link => {
-                if (link.source.id === nodeId) {
-                    connectedNodes.add(link.target.id);
-                }
-            });
-        }
-    
-        node.selectAll("circle").attr("fill", "#E0E0E0"); 
-    
-        
-        if (d.id === "Reading Materials") {
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                (["Primary Source", "Reading", "Textbook", "Community Radio Transcripts"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return; 
-        }
+node.on("dblclick", (event, d) => {
+    if (expandableCategories.has(d.id)) {
+        let isCollapsed = expandableCategories.has(d.id);
+        if (isCollapsed) {
+            expandableCategories.delete(d.id);
+            node.filter(n => hiddenNodes[d.id]?.has(n.id)).transition().duration(500).style("opacity", 1);
+            link.filter(l => hiddenLinks[d.id]?.has(l.target.id) || hiddenLinks[d.id]?.has(l.source.id))
+                .transition().duration(500).style("opacity", 1);
+        } else {
+            expandableCategories.add(d.id);
+            let categoryNodes = getChildNodes(d.id);
+            categoryNodes.delete(d.id);
+            hiddenNodes[d.id] = new Set(categoryNodes);
+            hiddenLinks[d.id] = new Set();
 
-        if (d.id === "Instructor Materials") {
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                (["Unit Plan","Curriculum Plan","Teacher Guide","Lesson Plan"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return; 
+            node.filter(n => categoryNodes.has(n.id)).transition().duration(500).style("opacity", 0);
+            link.filter(l => categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id))
+                .transition().duration(500).style("opacity", 0);
         }
-
-        if (d.id === "Courseware") {
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                (["Lesson"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return; 
-        }
-
-        if (d.id === "Class Guides") {
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                (["Student Guide"].includes(n.id)) ? "green" :
-                "#E0E0E0"
-            );
-            return; 
-
-        } 
-    
-        
-        if (d.id === "Teachers") {
-            getFirstLevelChildren(d.id);
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                connectedNodes.has(n.id) ? "#42A5F5" : 
-                (["Reading Materials"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return;
-        }
-    
-        
-        if (d.id === "Students") {
-            getFirstLevelChildren(d.id);
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                connectedNodes.has(n.id) ? "#42A5F5" : 
-                (["Reading Materials"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return;
-        }
-    
-        
-        if (d.id === "Reading Materials" && connectedNodes.has("Teachers")) {
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                (["Case Study", "Data Set", "Lecture Notes"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return;
-        }
-    
-        
-        if (d.id === "Reading Materials" && connectedNodes.has("Students")) {
-            node.selectAll("circle").attr("fill", n =>
-                (n.id === d.id) ? "red" :
-                (["Primary Source", "Reading", "Textbook", "Community Radio Transcripts"].includes(n.id)) ? "green" : 
-                "#E0E0E0"
-            );
-            return;
-        }
-    
-        
-        data.links.forEach(link => {
-            if (link.source.id === d.id) connectedNodes.add(link.target.id);
-            if (link.target.id === d.id) connectedNodes.add(link.source.id);
-        });
-    
-        
-        node.selectAll("circle").attr("fill", n =>
-            (n.id === d.id) ? "red" :
-            connectedNodes.has(n.id) ? "green" :
-            (n.id === "Educational Standard" || n.id === "Accessibility" ? "lightgray" : 
-            ["Licensing", "Domain", "Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Country list", "Delivery format"].includes(n.id) ? "green" : 
-            (["Parents", "District School Leaders", "Head of Departments", "Principals", "Community Members", "Education Managers", "Policy Makers"].includes(n.id) ? "lightgray" :    
-            (n.id === "Primary Users" ? "lightgray" : 
-            (n.id === "Students" ? "#42A5F5" : 
-            (n.id === "Teachers" ? "#42A5F5" : 
-            (n.id === "Instructor Materials" ? "#9E9E9E" : 
-            (n.group === "material" ? "#E0E0E0" : 
-            (n.group === "root" ? "black" : 
-            (n.group === "Licensing" ? "#FF5722" : "#BDBDBD")))))))))
-        );
-    });
-    
-    
-    
-
-        node.on("dblclick", (event, d) => {
-            if (["Material Types", "Subject list", "Educational Level", "Language", "Media Format", "Domain", "Country list", "Licensing", "Accessibility", "Delivery format", "Educational Standard"].includes(d.id)) {
-                let isCollapsed = expandedCategories.has(d.id);
-        
-                if (isCollapsed) {
-                    expandedCategories.delete(d.id);
-        
-                    node.filter(n => hiddenNodes[d.id]?.has(n.id))
-                        .transition().duration(500)
-                        .style("opacity", 1);
-        
-                    link.filter(l => hiddenLinks[d.id]?.has(l.target.id) || hiddenLinks[d.id]?.has(l.source.id))
-                        .transition().duration(500)
-                        .style("opacity", 1);
-        
-                } else {
-                    expandedCategories.add(d.id);
-        
-                    let categoryNodes = new Set();
-                    getChildNodes(d.id, categoryNodes);
-                    categoryNodes.delete(d.id);
-        
-                    hiddenNodes[d.id] = new Set(categoryNodes);
-                    hiddenLinks[d.id] = new Set();
-        
-                    // Store links for hidden nodes
-                    data.links.forEach(l => {
-                        if (categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id)) {
-                            hiddenLinks[d.id].add(l.target.id);
-                            hiddenLinks[d.id].add(l.source.id);
-                        }
-                    });
-        
-                    node.filter(n => categoryNodes.has(n.id))
-                        .transition().duration(500)
-                        .style("opacity", 0);
-        
-                    link.filter(l => categoryNodes.has(l.target.id) || categoryNodes.has(l.source.id))
-                        .transition().duration(500)
-                        .style("opacity", 0);
-                }
-            }  
-        
-            // 
-            if (d.id === "Educational Level") {
-                node.selectAll("circle").attr("fill", n =>
-                    (n.id === "Lower Primary") ? "green" : 
-                    (["Grade 1", "Grade 2", "Grade 3"].includes(n.id)) ? "green" :
-                    (n.id === "Educational Level") ? "green" :  
-                    "#E0E0E0"
-                );
-            }
-        });
-        
-    
-
-    
-
+    }
+});
 
 node.append("text")
     .text(d => d.id)
-    .attr("x", 12)
+    .attr("x", 16)
     .attr("dy", ".35em")
     .style("font-size", "12px");
 
 initializeCollapse();
+
 simulation.on("tick", () => {
     link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
         .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
 
     node.attr("transform", d => `translate(${d.x},${d.y})`);
-
-
-    
 });
